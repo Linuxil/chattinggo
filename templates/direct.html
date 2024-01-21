@@ -163,7 +163,7 @@
 
 .chat .chat-history .my-message:after {
     top: 100%;
-    left: 90%;
+    left: 50%;
     transform: rotate(3.142rad);
     border: solid transparent;
     content: " ";
@@ -186,7 +186,7 @@
     border-bottom-color: #e8f1f3;
     /* left: 93% */
     top: 100%;
-    left: 90%;
+    left: 50%;
     transform: rotate(3.142rad);
 }
 
@@ -279,30 +279,78 @@
     padding: 0, 0;
 
 }
+.logouticon
+{
+    position: absolute;
+    z-index: 5;
+    left: 10px;
+    top: 20px;
+}
+.editProfilicon
+{
+    position: absolute;
+    z-index: 6;
+    left: 60px;
+    top: 20px;
+}
+button {
+    outline: none;
+    border: none;
+}
+.userslist
+{
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 590px;
+}
     </style>
 </head>
 <body>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+<div class="logouticon col-lg-6 hidden-sm">
+    <a href="/logout" class="btn btn-outline-secondary" title="Log Out"><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+</div>
+
+<div class="editProfilicon col-lg-6 hidden-sm">
+    <a href="/editProfil/{{ request.user.id }}" class="btn btn-outline-secondary" title="Edit Profil"><i class="fa fa-edit" aria-hidden="true"></i></a>
+</div>
+
 <div class="container">
 <div class="row clearfix">
 <div class="col-lg-12">
 <div class="card chat-app">
 <div id="plist" class="people-list">
-<div class="input-group">
+<form class="input-group" method="post">
+    {% csrf_token %}
+<!-- <form action="" method="post"> -->
 <div class="input-group-prepend">
-<span class="input-group-text"><i class="fa fa-search"></i></span>
+<button type="submit" name="forsearch"> <span class="input-group-text"><i class="fa fa-search"></i></span>
+</button>
 </div>
-<input type="text" class="form-control" placeholder="Search...">
-</div>
-<ul class="list-unstyled chat-list mt-2 mb-0">
+<input type="text" class="form-control" placeholder="Search..." name="search">
+<!-- </form> -->
+</form>
+<ul class="list-unstyled chat-list mt-2 mb-0 userslist">
     
 {% for i in users %}
 <li class="clearfix">
-<img src="{{ i.image.url }}" alt="avatar">
+<a href="{% url 'chat' i.id %}">
+{% if i.image %}
+<img src="{{ i.image.url }}" height="45px" width="45px" alt="avatar">   
+{% else %}
+<img src="/static/img/newUserLogo.jpg"  width="45px" alt="avatar"> 
+{% endif %}
 <div class="about">
-<div class="name">{{ i.full_name }}</div>
-<div class="status"> <i class="fa fa-circle offline"></i> {{ i.last_active }} </div>
+<div class="name">{{ i.first_name }}</div>
+<div class="status"> <i class="fa fa-circle offline"></i> 
+    {% if i.last_active == None %}
+    last seen recently
+    {% else %}
+    {{ i.last_active }} 
+    {% endif %}
 </div>
+</div>
+</a>
 </li>
 {% endfor %}
 
@@ -313,11 +361,19 @@
 <div class="row">
 <div class="col-lg-6">
 <a href="javascript:void(0);" data-toggle="modal" data-target="#view_info">
-<img src="{{ user.image.url }}" alt="avatar">
+{% if user.image %}
+<img src="{{ user.image.url }}" height="45px" width="45px" alt="avatar">   
+{% else %}
+<img src="/static/img/newUserLogo.jpg"  width="45px" alt="avatar"> 
+{% endif %}
 </a>
 <div class="chat-about">
-<h6 class="m-b-0">{{ user.full_name }}</h6>
-<small>{{ user.last_active }}</small>
+<h6 class="m-b-0">{{ user.first_name }}</h6>
+<small>  {% if i.last_active == None %}
+    last seen recently
+    {% else %}
+    {{ i.last_active }} 
+    {% endif %}</small>
 </div>
 </div>
 <!-- <div class="col-lg-6 hidden-sm text-right">
@@ -330,19 +386,24 @@
 </div>
 <div class="chat-history">
 <ul class="m-b-0">
+
+{% for message in all_messages %}
+{% if message.sender == request.user %}
 <li class="clearfix">
 <div class="message-data text-right">
-<span class="message-data-time">10:10 AM, Today</span>
-<img src="" alt="avatar">
+<span class="message-data-time">{{ message.message_date }}</span>
 </div>
-<div class="message my-message float-right"> Hi Aiden, how are you? How is the project coming along? </div>
+<div class="message my-message float-right"> {{ message.message_body }} </div>
 </li>
+{% else %}
 <li class="clearfix">
 <div class="message-data">
-<span class="message-data-time">10:12 AM, Today</span>
+<span class="message-data-time">{{ message.message_date }}</span>
 </div>
-<div class="message other-message">Are we meeting today?</div>
-</li>
+<div class="message other-message">{{ message.message_body }}</div>
+{% endif %}
+{% endfor %}
+</li> 
 </ul>
 </div>
 <div class="chat-message clearfix">

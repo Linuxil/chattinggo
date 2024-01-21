@@ -13,6 +13,5 @@ from .models import *
 
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
-    list_display = ("first_name","username","last_active")
-
+    list_display = ("username","last_active")
 admin.site.register(Messages)

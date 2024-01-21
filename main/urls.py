@@ -4,6 +4,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
      path("", ChatView.as_view(), name='home'),
+     path("chat/<int:user_pk>/", ChatdirectView.as_view(), name='chat'),
      path("login/", LoginView.as_view(), name='login'),
      path("registration/", RegistrationView.as_view(), name='registration'),
      path("logout/", LogoutView.as_view(), name='logout'),
